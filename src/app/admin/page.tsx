@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/db'
+import ServiceCards from './ServiceCards'
 
 export default async function AdminOverviewPage() {
   const supabase = createServiceClient()
@@ -31,7 +32,8 @@ export default async function AdminOverviewPage() {
           </div>
         ))}
       </div>
-      <h2 className="font-semibold mb-3">Recent Calls</h2>
+      <ServiceCards />
+      <h2 className="font-semibold mb-3 mt-8">Recent Calls</h2>
       <table className="w-full text-sm bg-white rounded-lg border">
         <thead>
           <tr className="border-b text-left">

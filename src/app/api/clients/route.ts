@@ -1,21 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/db'
-import { getSession, isAdmin } from '@/lib/auth'
+import { getAuthUser, isAdmin } from '@/lib/auth'
 import { provisionPhoneNumber } from '@/lib/twilio'
 import { cloneAssistant } from '@/lib/vapi'
 import { getSchedulingLink } from '@/lib/cal'
 
 async function requireAdmin() {
-  const session = await getSession()
-  if (!session) return null
-  const googleId = session.user.user_metadata.sub || session.user.id
+  const user = await getAuthUser()
+  if (!user) return null
+  const googleId = user.user_metadata.sub || user.id
   const admin = await isAdmin(googleId)
-  return admin ? session : null
+  return admin ? user : null
 }
 
 export async function GET() {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const user = await requireAdmin()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const supabase = createServiceClient()
   const { data } = await supabase
@@ -27,8 +27,8 @@ export async function GET() {
 }
 
 export async function POST(request: NextRequest) {
-  const session = await requireAdmin()
-  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  const user = await requireAdmin()
+  if (!user) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
 
   const body = await request.json()
   const { name, businessName, email, ownerCell, urgentKeywords, afterHoursEscalate } = body
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
   const supabase = createServiceClient()
 
   const twilioNumber = await provisionPhoneNumber(process.env.TWILIO_AREA_CODE ?? '415')
-  const calLink = getSchedulingLink('your-cal-username', 'home-service')
+  const calLink = getSchedulingLink('bandhavi-sakhamuri-tydmvi', 'home-service-automation')
   const vapiAssistantId = await cloneAssistant({
     businessName,
     calLink,

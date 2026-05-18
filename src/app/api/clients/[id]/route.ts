@@ -1,12 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createServiceClient } from '@/lib/db'
-import { getSession, isAdmin } from '@/lib/auth'
+import { getAuthUser, isAdmin } from '@/lib/auth'
 
 async function requireAdmin() {
-  const session = await getSession()
-  if (!session) return null
-  const googleId = session.user.user_metadata.sub || session.user.id
-  return (await isAdmin(googleId)) ? session : null
+  const user = await getAuthUser()
+  if (!user) return null
+  const googleId = user.user_metadata.sub || user.id
+  return (await isAdmin(googleId)) ? user : null
 }
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {

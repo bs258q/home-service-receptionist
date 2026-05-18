@@ -1,9 +1,9 @@
 import { createServerSupabaseClient, createServiceClient } from './db'
 
-export async function getSession() {
+export async function getAuthUser() {
   const supabase = await createServerSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  return session
+  const { data: { user } } = await supabase.auth.getUser()
+  return user
 }
 
 export async function isAdmin(googleId: string): Promise<boolean> {

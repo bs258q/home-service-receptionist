@@ -3,10 +3,10 @@ import { getClientByGoogleId } from '@/lib/auth'
 
 export default async function PortalBookingsPage() {
   const supabase = await createServerSupabaseClient()
-  const { data: { session } } = await supabase.auth.getSession()
-  if (!session) return <div>Not logged in</div>
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return <div>Not logged in</div>
 
-  const googleId = session.user.user_metadata.sub || session.user.id
+  const googleId = user.user_metadata.sub || user.id
   const client = await getClientByGoogleId(googleId)
   if (!client) return <div>Account not found</div>
 
