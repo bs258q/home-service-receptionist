@@ -26,9 +26,16 @@ export async function createServerSupabaseClient() {
   )
 }
 
+// Server-only: uses service role key, bypasses RLS. Never call from client components.
 export function createServiceClient() {
-  return createBrowserClient(
+  return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.SUPABASE_SERVICE_ROLE_KEY!,
+    {
+      cookies: {
+        getAll() { return [] },
+        setAll() {},
+      },
+    }
   )
 }
