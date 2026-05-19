@@ -6,6 +6,13 @@ const client = twilio(
 )
 
 export async function provisionPhoneNumber(areaCode: string = '415'): Promise<string> {
+  // In test/trial mode, reuse the existing Twilio number instead of purchasing new ones
+  if (process.env.TWILIO_BYPASS_PROVISION === 'true') {
+    const existing = process.env.TWILIO_NUMBER
+    if (!existing) throw new Error('TWILIO_BYPASS_PROVISION=true but TWILIO_NUMBER not set')
+    return existing
+  }
+
   const fallbackCodes = [areaCode, '415', '408', '650', '510', '213', '312', '646']
   const unique = [...new Set(fallbackCodes)]
 
