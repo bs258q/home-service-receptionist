@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
 
   const supabase = createServiceClient()
 
-  const twilioNumber = await provisionPhoneNumber(process.env.TWILIO_AREA_CODE ?? '415')
+  const twilioNumber = process.env.TWILIO_NUMBER ?? await provisionPhoneNumber(process.env.TWILIO_AREA_CODE ?? '415')
   const calLink = getSchedulingLink('bandhavi-sakhamuri-tydmvi', 'home-service-automation')
   const vapiAssistantId = await cloneAssistant({
     businessName,
