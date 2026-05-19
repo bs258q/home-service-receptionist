@@ -6,17 +6,22 @@ const client = twilio(
 )
 
 export async function provisionPhoneNumber(areaCode: string = '415'): Promise<string> {
-  const available = await client.availablePhoneNumbers('US')
-    .local.list({ areaCode: parseInt(areaCode), limit: 1 })
+  const fallbackCodes = [areaCode, '415', '408', '650', '510', '213', '312', '646']
+  const unique = [...new Set(fallbackCodes)]
 
-  if (!available.length) throw new Error(`No numbers available in area code ${areaCode}`)
+  for (const code of unique) {
+    const available = await client.availablePhoneNumbers('US')
+      .local.list({ areaCode: parseInt(code), limit: 1 })
+    if (available.length) {
+      const number = await client.incomingPhoneNumbers.create({
+        phoneNumber: available[0].phoneNumber,
+        voiceUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio/voice`,
+      })
+      return number.phoneNumber
+    }
+  }
 
-  const number = await client.incomingPhoneNumbers.create({
-    phoneNumber: available[0].phoneNumber,
-    voiceUrl: `${process.env.NEXT_PUBLIC_APP_URL}/api/webhooks/twilio/voice`,
-  })
-
-  return number.phoneNumber
+  throw new Error('No numbers available in any fallback area code')
 }
 
 export async function sendSms(to: string, body: string): Promise<void> {
